@@ -1,0 +1,5 @@
+
+# TODO:
+
+- Add a while loop for the userinput
+- Finish the privacy and routing modes
