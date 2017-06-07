@@ -21,6 +21,7 @@ echo "[+] Open range of ports                    ......................  6 "
 echo "[+] Block or Open cetrain ports            ......................  7 "
 echo "[+] Protection Mode                        ......................  8 "
 echo "[+] Privacy Mode                           ......................  9 " # using OpenVPNs and SSH
+echo "[+] Delete specific Rules                  ......................  10 "
 echo  
 
 
@@ -109,10 +110,10 @@ elif [ $user_input -eq 4 ]; then
 	iptables -A OUTPUT -o $interface  -p tcp -m tcp --dport 443 -j ACCEPT -m state --state NEW
 	echo 
 
-elif [ $user_input -eq 5 ];
+#elif [ $user_input -eq 5 ];
 
 	# Allow incoming or outcoming pings
-	echo "Route HTTP & HTTPS traffic through SSH [Good option for extra layer of traffic encryption]"
+#	echo "Route HTTP & HTTPS traffic through SSH [Good option for extra layer of traffic encryption]"
 	
 	# HTTP/ HTTPS ---> SSH
 	
@@ -120,11 +121,6 @@ elif [ $user_input -eq 5 ];
 
 fi 
 
-
-
-
-# List all iptables rules:
-#iptables -L 
 
 
 
