@@ -16,12 +16,12 @@ echo "[+] List all iptables rules                ......................  1 "
 echo "[+] Allow localhost connections ONLY       ......................  2 "
 echo "[+] Lock down mode                         ......................  3 "
 echo "[+] Allow HTTP & HTTPS                     ......................  4 "
-echo "[+] Route HTTP &HTTPS  through SSH         ......................  5 "
-echo "[+] Open range of ports                    ......................  6 "
-echo "[+] Block or Open cetrain ports            ......................  7 "
-echo "[+] Protection Mode                        ......................  8 "
-echo "[+] Privacy Mode                           ......................  9 " # using OpenVPNs and SSH
-echo "[+] Delete specific Rules                  ......................  10 "
+echo "[+] Allow SSH from specific IP and PORT    .....................   5 "
+echo "[+] Route HTTP &HTTPS  through SSH         ......................  6 "
+echo "[+] Open range of ports                    ......................  7 "
+echo "[+] Block or Open cetrain ports            ......................  8 "
+echo "[+] Protection Mode                        ......................  9 "
+echo "[+] Privacy Mode                           ......................  10" # using OpenVPNs and SSH
 echo  
 
 
@@ -110,18 +110,31 @@ elif [ $user_input -eq 4 ]; then
 	iptables -A OUTPUT -o $interface  -p tcp -m tcp --dport 443 -j ACCEPT -m state --state NEW
 	echo 
 
-#elif [ $user_input -eq 5 ];
+elif [ $user_input -eq 5 ]; then
 
 	# Allow incoming or outcoming pings
-#	echo "Route HTTP & HTTPS traffic through SSH [Good option for extra layer of traffic encryption]"
+	echo "Allow Incoming SSH from speific IP and port number"
+
+	echo "Enter the interface: "
+	read  interface
+	echo 
+
+	echo "Enetr the specific IP:"
+	read ip 
+	echo 
+
+	echo "Enter the port number of the ssh:"
+	read port
+	echo 
+
+
+	iptables -A INPUT -i $interface -p tcp -m tcp -s $ip --dport $port -m state --state NEW,ESTABLISHED  -j ACCEPT
 	
+	# Output 
+	iptables -A OUTPUT -o $interface -p tcp -m tcp  --sport $port -m state --state ESTABLISHED -j ACCEPT 
+
+		
 	# HTTP/ HTTPS ---> SSH
-	
 
 
-fi 
-
-
-
-
-
+fi
