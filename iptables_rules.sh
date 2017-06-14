@@ -17,12 +17,10 @@ echo "[+] Allow localhost connections ONLY       ......................  2 "
 echo "[+] Lock down mode                         ......................  3 "
 echo "[+] Allow HTTP & HTTPS                     ......................  4 "
 echo "[+] Allow SSH from specific IP and PORT    .....................   5 "
-echo "[+] Route HTTP &HTTPS  through SSH         ......................  6 "
-echo "[+] Open range of ports                    ......................  7 "
-echo "[+] Block or Open cetrain ports            ......................  8 "
-echo "[+] Protection Mode                        ......................  9 "
-echo "[+] Privacy Mode                           ......................  10" # using OpenVPNs and SSH
-echo "[+] Delete all rule for IPv4 and IPv6      ......................  11"
+echo "[+] Block or Open cetrain ports            ......................  6 "
+echo "[+] Protection Mode [HTTPS & SSH]          ......................  7 "
+echo "[+] Privacy Mode [VPN kill switch]         ......................  8 " # using OpenVPNs and SSH
+echo "[+] Delete all rule for IPv4 and IPv6      ......................  9 "
 echo  
 
 
@@ -136,6 +134,7 @@ elif [ $user_input -eq 4 ]; then
 
 elif [ $user_input -eq 5 ]; then
 
+	# Allow SSH from speific IP & port
 	# Allow incoming or outcoming pings
 	echo "Allow Incoming SSH from speific IP and port number"
 
@@ -160,9 +159,14 @@ elif [ $user_input -eq 5 ]; then
 		
 	# HTTP/ HTTPS ---> SSH
 
-elif [ $user_input -eq 9 ]; then 
+# Number 6 : BLock or open certain ports
 
-	# PROTECTION MODE : combination of 4 and 5 
+  
+
+elif [ $user_input -eq 7 ]; then 
+
+	# PROTECTION MODE : combination of 4 and 5
+	# HTTP -HTTPS & SSH 
 	echo "Protection mode drops all packets incoming and outgoing and allows only HTTP,HTTPS and SSH "
 
 
@@ -218,7 +222,53 @@ elif [ $user_input -eq 9 ]; then
 	echo 
 
 
-elif [ $user_input -eq 11 ]; then 
+elif [ $user_input -eq 8 ]; then 
+
+
+	# Privacy Mode -- VPN killswitch # drop all the traffic if the VPN is disconnected 
+
+	# 1- Connect to your VPN service  IP and Port
+	# 2- Choose option 8 to activate the VPN kill switch 
+
+
+	echo "VPN IP: "
+	read vpn_ip
+	echo 
+
+	echo "VPN port: "
+	read vpn_port
+	echo 
+
+	echo "Connection type [tcp OR udp] :"
+	read conn_type
+	echo 
+
+	# Drop all traffic 
+	
+	iptables -P INPUT DROP
+	iptables -P FORWARD   DROP 
+	iptables -P OUTPUT DROP
+	
+	
+	# Allow basic INPUT traffic 
+
+	iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	iptables -A INPUT -i lo -j ACCEPT
+	iptables -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+	
+
+	# Allow basic OUTPUT traffic
+	iptables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	iptables -A OUTPUT -o lo -j ACCEPT
+	iptables -A OUTPUT -p icmp -j ACCEPT
+
+
+	# Allow VPN traffic only 
+	iptables -A OUTPUT -o tun+ -j ACCEPT
+	iptables -A OUTPUT -d $vpn_ip  -p $conn_type -m $conn_type --dport $vpn_port -j ACCEPT
+	
+
+elif [ $user_input -eq 9 ]; then 
 
 	# Flush all IPv4 rules 
 
